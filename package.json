@@ -1,5 +1,9 @@
 {
   "name": "xdebug-webext",
   "version": "1.0.0",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^2.5.3",
+    "web-ext-types": "^0.3.1"
+  }
 }

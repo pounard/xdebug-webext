@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "alwaysStrict": true,
+        "checkJs": false,
+        "downlevelIteration": false,
+        "inlineSources": false,
+        "lib": ["es2015", "es2015.promise", "es5", "dom"],
+        "module": "es6",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "outDir": ".",
+        "removeComments": true,
+        "sourceMap": false,
+        "strict": true,
+        "strictNullChecks": true,
+        "target": "es6",
+        "typeRoots": ["@types", "node_modules/web-ext-types"]
+    },
+    "files": ["src/background.ts", "src/popup.ts"]
+}

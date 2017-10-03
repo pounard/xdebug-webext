@@ -1,6 +1,6 @@
 
 DEST=xdebug-webext.xpi
-FILES=background.js icons/ _locales/ manifest.json popup.*
+FILES=api.js background.js icons/ _locales/ manifest.json popup.*
 
 all: zip
 
