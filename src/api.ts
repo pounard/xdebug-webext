@@ -17,6 +17,7 @@ export function setError(error?: any, name?: string): void {
 export async function isCookieEnabled(url: string, name: string): Promise<boolean> {
     return await browser.cookies.get({url: url, name: name}).then((cookie: browser.cookies.Cookie | null) => {
         return new Promise<boolean>((resolve, reject) => {
+            console.log(`${name} is ${cookie}`);
             if (cookie && cookie.value == "1") {
                 resolve(true);
             } else {
@@ -27,11 +28,11 @@ export async function isCookieEnabled(url: string, name: string): Promise<boolea
 }
 
 export function setIconAsWorking(): void {
-    browser.browserAction.setIcon({path: "icons/working.svg"}).catch(setError);
+    browser.browserAction.setIcon({path: "../icons/working.svg"}).catch(setError);
 }
 
 export function setIconAsIdle(): void {
-    browser.browserAction.setIcon({path: "icons/icon.svg"}).catch(setError);
+    browser.browserAction.setIcon({path: "../icons/icon.svg"}).catch(setError);
 }
 
 export function updateStateWithTab(tab: browser.tabs.Tab) {
@@ -42,10 +43,11 @@ export function updateStateWithTab(tab: browser.tabs.Tab) {
     }
 
     Promise.all(promises).then((enabled: boolean[]) => {
+        console.log(enabled);
         if (enabled.some(value => value)) {
-            setIconAsIdle();
-        } else {
             setIconAsWorking();
+        } else {
+            setIconAsIdle();
         }
     }, error => {
         setError(error, name);

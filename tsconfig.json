@@ -21,5 +21,5 @@
         "target": "es2017",
         "typeRoots": ["@types", "node_modules/web-ext-types"]
     },
-    "files": ["src/background.ts", "src/popup.ts"]
+    "files": ["src/background.ts", "src/options.ts", "src/popup.ts"]
 }

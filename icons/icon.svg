@@ -1,18 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16">
-  <defs>
-    <linearGradient id="a">
-      <stop offset="0" stop-color="#285a8c"/>
-      <stop offset="1" stop-color="#508cc8"/>
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg18"
+   sodipodi:docname="icon.svg"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06">
+  <metadata
+     id="metadata22">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1358"
+     inkscape:window-height="1020"
+     id="namedview20"
+     showgrid="false"
+     inkscape:zoom="59"
+     inkscape:cx="6.3887077"
+     inkscape:cy="7.9963864"
+     inkscape:window-x="2652"
+     inkscape:window-y="272"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg18" />
+  <defs
+     id="defs14">
+    <linearGradient
+       id="a">
+      <stop
+         offset="0"
+         stop-color="#285a8c"
+         id="stop2" />
+      <stop
+         offset="1"
+         stop-color="#508cc8"
+         id="stop4" />
     </linearGradient>
-    <linearGradient id="b">
-      <stop offset="0" stop-color="#1c3b5c"/>
-      <stop offset="1" stop-color="#285078"/>
+    <linearGradient
+       id="b">
+      <stop
+         offset="0"
+         stop-color="#1c3b5c"
+         id="stop7" />
+      <stop
+         offset="1"
+         stop-color="#285078"
+         id="stop9" />
     </linearGradient>
-    <linearGradient x1="17.286" y1="1046.293" x2="-18.065" y2="1003.191" id="c" xlink:href="#a" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-1 0 0 1 28.42 0)"/>
-    <linearGradient x1="12.826" y1="1050.761" x2="-24.272" y2="1006.022" id="d" xlink:href="#b" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-1 0 0 1 28.42 0)"/>
+    <linearGradient
+       x1="17.286"
+       y1="1046.293"
+       x2="-18.065"
+       y2="1003.191"
+       id="c"
+       xlink:href="#a"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1 0 0 1 28.42 0)" />
+    <linearGradient
+       x1="12.826"
+       y1="1050.761"
+       x2="-24.272"
+       y2="1006.022"
+       id="d"
+       xlink:href="#b"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1 0 0 1 28.42 0)" />
   </defs>
-  <path d="M21.734 1045.673v5.125h-1.816c-4.864 0-9.028-.723-10.688-2.168-1.64-1.445-2.46-4.326-2.46-8.643v-6.098c0-2.95-.528-4.99-1.583-6.123-1.054-1.133-2.968-1.7-5.742-1.7h-1.787v-4.189h1.787c2.793 0 4.707-.556 5.742-1.67 1.055-1.133 1.582-3.154 1.582-6.064v-6.127c0-4.317.82-7.188 2.461-8.613 1.66-1.446 5.824-2.168 10.688-2.168h1.816v5.093h-1.992c-2.754 0-4.55.43-5.39 1.29-.84.859-1.26 1.761-1.26 4.515v6.361c0 3.067-1.352 5.293-2.25 6.68-.88 1.387-1.49 2.324-3.64 2.813 2.169.527 2.79 1.484 3.669 2.87.879 1.387 2.22 3.604 2.22 6.65v6.363c0 2.754.42 3.654 1.26 4.514.84.859 2.96 1.289 5.391 1.289zm12.579 0v5.125h1.816c4.864 0 9.028-.723 10.688-2.168 1.64-1.445 2.46-4.326 2.46-8.643v-6.098c0-2.95.528-4.99 1.583-6.123 1.054-1.133 2.968-1.7 5.742-1.7h1.787v-4.189h-1.787c-2.793 0-4.707-.556-5.742-1.67-1.055-1.133-1.582-3.154-1.582-6.064v-6.127c0-4.317-.82-7.188-2.461-8.613-1.66-1.446-5.824-2.168-10.688-2.168h-1.816v5.093h1.992c2.754 0 4.55.43 5.39 1.29.84.859 1.26 1.761 1.26 4.515v6.361c0 3.067 1.352 5.293 2.25 6.68.88 1.387 1.49 2.324 3.64 2.813-2.169.527-2.79 1.484-3.669 2.87-.879 1.387-2.22 3.604-2.22 6.65v6.363c0 2.754-.42 3.654-1.26 4.514-.84.859-2.96 1.289-5.391 1.289z" style="-inkscape-font-specification:Fixedsys" font-size="60" fill="url(#c)" stroke="url(#d)" font-family="Fixedsys" transform="matrix(-.22157 0 0 .22103 14.138 -218.338)" font-weight="400" letter-spacing="0" word-spacing="0" stroke-width="1.807" stroke-linejoin="round"/>
+  <path
+     d="M21.734 1045.673v5.125h-1.816c-4.864 0-9.028-.723-10.688-2.168-1.64-1.445-2.46-4.326-2.46-8.643v-6.098c0-2.95-.528-4.99-1.583-6.123-1.054-1.133-2.968-1.7-5.742-1.7h-1.787v-4.189h1.787c2.793 0 4.707-.556 5.742-1.67 1.055-1.133 1.582-3.154 1.582-6.064v-6.127c0-4.317.82-7.188 2.461-8.613 1.66-1.446 5.824-2.168 10.688-2.168h1.816v5.093h-1.992c-2.754 0-4.55.43-5.39 1.29-.84.859-1.26 1.761-1.26 4.515v6.361c0 3.067-1.352 5.293-2.25 6.68-.88 1.387-1.49 2.324-3.64 2.813 2.169.527 2.79 1.484 3.669 2.87.879 1.387 2.22 3.604 2.22 6.65v6.363c0 2.754.42 3.654 1.26 4.514.84.859 2.96 1.289 5.391 1.289zm12.579 0v5.125h1.816c4.864 0 9.028-.723 10.688-2.168 1.64-1.445 2.46-4.326 2.46-8.643v-6.098c0-2.95.528-4.99 1.583-6.123 1.054-1.133 2.968-1.7 5.742-1.7h1.787v-4.189h-1.787c-2.793 0-4.707-.556-5.742-1.67-1.055-1.133-1.582-3.154-1.582-6.064v-6.127c0-4.317-.82-7.188-2.461-8.613-1.66-1.446-5.824-2.168-10.688-2.168h-1.816v5.093h1.992c2.754 0 4.55.43 5.39 1.29.84.859 1.26 1.761 1.26 4.515v6.361c0 3.067 1.352 5.293 2.25 6.68.88 1.387 1.49 2.324 3.64 2.813-2.169.527-2.79 1.484-3.669 2.87-.879 1.387-2.22 3.604-2.22 6.65v6.363c0 2.754-.42 3.654-1.26 4.514-.84.859-2.96 1.289-5.391 1.289z"
+     style="-inkscape-font-specification:Fixedsys;fill-opacity:0.97250861;fill:#bebebe;stroke-width:1.80750247;stroke-miterlimit:4;stroke-dasharray:none;stroke:#bebebe;stroke-opacity:0.47058824"
+     font-size="60"
+     fill="url(#c)"
+     stroke="url(#d)"
+     font-family="Fixedsys"
+     transform="matrix(-.22157 0 0 .22103 14.138 -218.338)"
+     font-weight="400"
+     letter-spacing="0"
+     word-spacing="0"
+     stroke-width="1.807"
+     stroke-linejoin="round"
+     id="path16" />
 </svg>

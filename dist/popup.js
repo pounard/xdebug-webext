@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -100,6 +100,7 @@ function setError(error, name) {
 async function isCookieEnabled(url, name) {
     return await browser.cookies.get({ url: url, name: name }).then((cookie) => {
         return new Promise((resolve, reject) => {
+            console.log(`${name} is ${cookie}`);
             if (cookie && cookie.value == "1") {
                 resolve(true);
             }
@@ -110,10 +111,10 @@ async function isCookieEnabled(url, name) {
     });
 }
 function setIconAsWorking() {
-    browser.browserAction.setIcon({ path: "icons/working.svg" }).catch(setError);
+    browser.browserAction.setIcon({ path: "../icons/working.svg" }).catch(setError);
 }
 function setIconAsIdle() {
-    browser.browserAction.setIcon({ path: "icons/icon.svg" }).catch(setError);
+    browser.browserAction.setIcon({ path: "../icons/icon.svg" }).catch(setError);
 }
 function updateStateWithTab(tab) {
     const promises = [];
@@ -121,11 +122,12 @@ function updateStateWithTab(tab) {
         promises.push(isCookieEnabled(tab.url, name));
     }
     Promise.all(promises).then((enabled) => {
+        console.log(enabled);
         if (enabled.some(value => value)) {
-            setIconAsIdle();
+            setIconAsWorking();
         }
         else {
-            setIconAsWorking();
+            setIconAsIdle();
         }
     }, error => {
         setError(error, name);
@@ -149,19 +151,94 @@ function updateState(tabId) {
 
 
 /***/ }),
-/* 1 */
+/* 1 */,
+/* 2 */,
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api__ = __webpack_require__(0);
 
-function onActivatedTab(activeInfo) {
-    Object(__WEBPACK_IMPORTED_MODULE_0__api__["h" /* updateState */])(activeInfo.tabId);
+const buttons = {
+    "debug": __WEBPACK_IMPORTED_MODULE_0__api__["b" /* XDEBUG_COOKIE_SESSION */],
+    "profile": __WEBPACK_IMPORTED_MODULE_0__api__["a" /* XDEBUG_COOKIE_PROFILE */],
+    "trace": __WEBPACK_IMPORTED_MODULE_0__api__["c" /* XDEBUG_COOKIE_TRACE */]
+};
+const DEFAULT_COOKIE_EXPIRY = 3600;
+function extractHostname(url) {
+    const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
+    if (matches && matches.length) {
+        return matches[0];
+    }
+    return url;
 }
-if (!browser.tabs.onActivated.hasListener(onActivatedTab)) {
-    browser.tabs.onActivated.addListener(onActivatedTab);
+async function cookieSet(url, name) {
+    console.log(`xdebug: set cookie ${name} for url ${url}`);
+    return await browser.cookies.set({
+        url: extractHostname(url),
+        name: name,
+        value: "1",
+        path: "/",
+        expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
+    });
 }
+async function cookieDelete(url, name) {
+    console.log(`xdebug: remove cookie ${name} for url ${url}`);
+    return await browser.cookies.remove({ url: url, name: name });
+}
+function toggleCheckboxState(tab, name, button) {
+    let promise;
+    if (button.checked) {
+        promise = cookieSet(tab.url, name);
+    }
+    else {
+        promise = cookieDelete(tab.url, name);
+    }
+    promise.then(_ => {
+        if (button.checked) {
+            __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setIconAsWorking */]();
+        }
+        else {
+            __WEBPACK_IMPORTED_MODULE_0__api__["i" /* updateStateWithTab */](tab);
+        }
+    }, error => {
+        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
+        button.checked = false;
+    }).catch(error => {
+        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
+        button.checked = false;
+    });
+}
+function initializeButton(tab, id, name) {
+    let button = document.querySelector("#" + id);
+    if (!button) {
+        return __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](`could not find button ${id}`);
+    }
+    button.addEventListener("change", () => toggleCheckboxState(tab, name, button));
+    __WEBPACK_IMPORTED_MODULE_0__api__["d" /* isCookieEnabled */](tab.url, name).then(enabled => {
+        button.checked = enabled;
+        if (enabled) {
+            __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setIconAsWorking */]();
+        }
+    }, error => {
+        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
+        button.checked = false;
+    }).catch(error => {
+        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
+        button.checked = false;
+    });
+}
+__WEBPACK_IMPORTED_MODULE_0__api__["f" /* setIconAsIdle */]();
+browser.tabs.query({ active: true }).then(tabs => {
+    for (let tab of tabs) {
+        if (tab.url) {
+            for (let id in buttons) {
+                initializeButton(tab, id, buttons[id]);
+            }
+        }
+    }
+});
 
 
 /***/ })

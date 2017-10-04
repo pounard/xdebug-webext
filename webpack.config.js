@@ -1,10 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
-const distDirectory = path.resolve(__dirname, './');
+const distDirectory = path.resolve(__dirname, './dist/');
 
 module.exports = {
   entry: {
     background: './src/background.ts',
+    options: './src/options.ts',
     popup: './src/popup.ts'
   },
   output: {

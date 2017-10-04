@@ -2,9 +2,11 @@
 
 Tested and working with Firefox >=55
 
-gulp-zip along with gulp.src() won't allow to easily keep folder structure,
-so for now, make is required to build, just run:
+Just run:
 
 ```sh
+yarn install --dev
 make
 ```
+
+Once installed, you must customize your toolbar to add the debug icon.

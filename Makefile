@@ -1,7 +1,7 @@
 
 DEST=xdebug-webext.xpi
 GENERATED=api.js background.js popup.js
-FILES=api.js background.js icons/ _locales/ manifest.json popup.*
+FILES=dist/ pages/ icons/ _locales/ manifest.json popup.*
 
 all: build zip
 

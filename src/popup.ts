@@ -71,7 +71,9 @@ function initializeButton(tab: browser.tabs.Tab, id: string, name: string) {
 
     Api.isCookieEnabled(<string>tab.url, name).then(enabled => {
         button.checked = enabled;
-        Api.setIconAsWorking();
+        if (enabled) {
+            Api.setIconAsWorking();
+        }
     }, error => {
         Api.setError(error, name);
         button.checked = false;
