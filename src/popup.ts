@@ -1,107 +1,94 @@
 
-import { XDEBUG_COOKIE_SESSION, XDEBUG_COOKIE_PROFILE, XDEBUG_COOKIE_TRACE, setError, setIconAsIdle, setIconAsWorking } from "./api";
+import * as Api from "./api";
 
-const debugButton = <HTMLInputElement>document.querySelector("#debug");
-const profileButton = <HTMLInputElement>document.querySelector("#profile");
-const traceButton = <HTMLInputElement>document.querySelector("#trace");
+const buttons: any = {
+    "debug": Api.XDEBUG_COOKIE_SESSION,
+    "profile": Api.XDEBUG_COOKIE_PROFILE,
+    "trace": Api.XDEBUG_COOKIE_TRACE
+};
 
-function toggleCookieInCurrenTab(name: string, enabled: boolean, button: HTMLInputElement) {
-    browser.tabs.query({active: true}).then(tabs => {
-        for (let tab of tabs) {
-            if (!tab.url) {
-                setState();
-                continue;
-            }
-            if (enabled) {
-                browser.cookies
-                    .set(<any>{url: tab.url, name: name, value: "1"})
-                    .then(
-                        setState,
-                        (error: any) => {
-                            setError(error, name);
-                            button.checked = false;
-                        }
-                    )
-                    .catch((error: any) => setError(error, name))
-                ;
-            } else {
-                browser.tabs.query({active: true}).then(tabs => {
-                    browser.cookies
-                        .remove(<any>{url: tab.url, name: name})
-                        .then(
-                            setState,
-                            (error: any) => {
-                                setError(error, name);
-                                button.checked = false;
-                            }
-                        )
-                        .catch((error: any) => setError(error, name))
-                    ;
-                });
-            }
-        }
+const DEFAULT_COOKIE_EXPIRY = 3600;
+
+function extractHostname(url: string): string {
+    const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
+    if (matches && matches.length) {
+        return matches[0];
+    }
+    return url;
+}
+
+async function cookieSet(url: string, name: string) {
+    console.log(`xdebug: set cookie ${name} for url ${url}`);
+    return await browser.cookies.set(<any>{
+        url: extractHostname(url),
+        name: name,
+        value: "1",
+        path: "/",
+        // Without expire, expiry will set to the session, but in container
+        // tabs Firefox will not send the cookie (ouate de phoque).
+        expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
     });
 }
 
-function setState() {
-    let isDebugging = false, isProfiling = false, isTracing = false;
+async function cookieDelete(url: string, name: string) {
+    console.log(`xdebug: remove cookie ${name} for url ${url}`);
+    return await browser.cookies.remove(<any>{url: url, name: name});
+}
 
-    function updateState() {
-        debugButton.checked = isDebugging;
-        profileButton.checked = isProfiling;
-        traceButton.checked = isTracing;
+function toggleCheckboxState(tab: browser.tabs.Tab, name: string, button: HTMLInputElement): void {
+    let promise: Promise<any>;
 
-        if (isDebugging || isProfiling || isTracing) {
-            setIconAsWorking();
-        } else {
-            setIconAsIdle();
-        }
+    if (button.checked) {
+        promise = cookieSet(<string>tab.url, name);
+    } else {
+        promise = cookieDelete(<string>tab.url, name);
     }
 
-    browser.tabs.query({active: true}).then(tabs => {
-        for (let tab of tabs) {
-
-            if (!tab.url) {
-                updateState();
-                continue;
-            }
-
-            const readDebugCookie = browser.cookies
-                .get({url: tab.url, name: XDEBUG_COOKIE_SESSION})
-                .then((cookie: any) => { if (cookie) { isDebugging = true; }}, setError)
-                .catch(setError)
-            ;
-
-            const readProfileCookie = browser.cookies
-                .get({url: tab.url, name: XDEBUG_COOKIE_PROFILE})
-                .then((cookie: any) => { if (cookie) { isProfiling = true; }}, setError)
-                .catch(setError)
-            ;
-
-            const readTraceCookie = browser.cookies
-                .get({url: tab.url, name: XDEBUG_COOKIE_TRACE})
-                .then((cookie: any) => { if (cookie) { isTracing = true; }}, setError)
-                .catch(setError)
-            ;
-
-            Promise.all([readDebugCookie, readProfileCookie, readTraceCookie])
-                .then(updateState, setError)
-                .catch(setError)
-            ;
+    promise.then(_ => {
+        if (button.checked) {
+            // No need to update whole state, we have at least one lit item
+            Api.setIconAsWorking();
+        } else {
+            Api.updateStateWithTab(tab);
         }
+    }, error => {
+        Api.setError(error, name);
+        button.checked = false;
+    }).catch(error => {
+        Api.setError(error, name);
+        button.checked = false;
     });
 }
 
-debugButton.addEventListener("change", function () {
-    toggleCookieInCurrenTab(XDEBUG_COOKIE_SESSION, this.checked, this);
-});
+function initializeButton(tab: browser.tabs.Tab, id: string, name: string) {
+    let button = <HTMLInputElement>document.querySelector("#" + id);
 
-profileButton.addEventListener("change", function () {
-    toggleCookieInCurrenTab(XDEBUG_COOKIE_PROFILE, this.checked, this);
-});
+    if (!button) {
+        return Api.setError(`could not find button ${id}`);
+    }
 
-traceButton.addEventListener("change", function () {
-    toggleCookieInCurrenTab(XDEBUG_COOKIE_TRACE, this.checked, this);
-});
+    button.addEventListener("change", () => toggleCheckboxState(tab, name, button));
 
-setState();
+    Api.isCookieEnabled(<string>tab.url, name).then(enabled => {
+        button.checked = enabled;
+        Api.setIconAsWorking();
+    }, error => {
+        Api.setError(error, name);
+        button.checked = false;
+    }).catch(error => {
+        Api.setError(error, name);
+        button.checked = false;
+    });
+}
+
+// On load restore buttons state
+Api.setIconAsIdle();
+browser.tabs.query({active: true}).then(tabs => {
+    for (let tab of tabs) {
+        if (tab.url) {
+            for (let id in buttons) {
+                initializeButton(tab, id, buttons[id]);
+            }
+        }
+    }
+})

@@ -5,7 +5,7 @@
         "checkJs": false,
         "downlevelIteration": false,
         "inlineSources": false,
-        "lib": ["es2015", "es2015.promise", "es5", "dom"],
+        "lib": ["es2015", "es2016", "es2017", "es5", "es6", "esnext", "dom"],
         "module": "es6",
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
@@ -18,7 +18,7 @@
         "sourceMap": false,
         "strict": true,
         "strictNullChecks": true,
-        "target": "es6",
+        "target": "es2017",
         "typeRoots": ["@types", "node_modules/web-ext-types"]
     },
     "files": ["src/background.ts", "src/popup.ts"]
