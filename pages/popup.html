@@ -10,15 +10,16 @@
     <div class="browser-style">
       <input type="checkbox" id="debug" name="choices" value="op1"/>
       <label for="debug">Debugging</label>
+      <p class="caption20">Alt+Shit+X to toggle.</p>
 
-      <hr/>
-
-      <input type="checkbox" id="profile" name="choices" value="op1"/>
-      <label for="profile">Profiling</label>
-      <hr/>
+      <div class="with-margin browser-style">
+        <input type="checkbox" id="profile" name="choices" value="op1"/>
+        <label for="profile">Profiling</label>
+      </div>
 
       <input type="checkbox" id="trace" name="choices" value="op1"/>
       <label for="trace">Trace</label>
+      <br/>
     </div>
 
     <script src="../dist/popup.js"></script>

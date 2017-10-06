@@ -5,3 +5,15 @@ body {
 hr {
   opacity: .3;
 }
+.caption20 {
+  /* http://design.firefox.com/photon/visuals/typography.html */
+  color: #737373;
+  font-size: 13px;
+}
+p.caption20 {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+.with-margin {
+  margin-bottom: 10px;
+}
