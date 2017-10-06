@@ -28,6 +28,16 @@
     "default_popup": "pages/popup.html",
     "default_title": "XDebug"
   },
+  "commands": {
+    "toggle_debug_session": {
+      "suggested_key": {
+        "default": "Alt+Shift+X",
+        "windows": "Alt+Shift+X",
+        "mac": "Alt+Shift+X"
+      },
+      "description": "Toggle the XDebug session cookie"
+    }
+  },
   "options_ui": {
     "page": "pages/options.html",
     "browser_style": true

@@ -68,12 +68,13 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["e"] = setError;
-/* harmony export (immutable) */ __webpack_exports__["d"] = isCookieEnabled;
-/* harmony export (immutable) */ __webpack_exports__["g"] = setIconAsWorking;
-/* harmony export (immutable) */ __webpack_exports__["f"] = setIconAsIdle;
-/* harmony export (immutable) */ __webpack_exports__["i"] = updateStateWithTab;
-/* harmony export (immutable) */ __webpack_exports__["h"] = updateState;
+/* harmony export (immutable) */ __webpack_exports__["g"] = setError;
+/* harmony export (immutable) */ __webpack_exports__["f"] = isCookieEnabled;
+/* harmony export (immutable) */ __webpack_exports__["e"] = cookieSet;
+/* harmony export (immutable) */ __webpack_exports__["d"] = cookieDelete;
+/* harmony export (immutable) */ __webpack_exports__["i"] = setIconAsWorking;
+/* harmony export (immutable) */ __webpack_exports__["h"] = setIconAsIdle;
+/* harmony export (immutable) */ __webpack_exports__["j"] = updateStateWithTab;
 const XDEBUG_COOKIE_SESSION = "XDEBUG_SESSION";
 /* harmony export (immutable) */ __webpack_exports__["b"] = XDEBUG_COOKIE_SESSION;
 
@@ -110,6 +111,28 @@ async function isCookieEnabled(url, name) {
         });
     });
 }
+const DEFAULT_COOKIE_EXPIRY = 3600;
+function extractHostname(url) {
+    const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
+    if (matches && matches.length) {
+        return matches[0];
+    }
+    return url;
+}
+async function cookieSet(url, name) {
+    console.log(`xdebug: set cookie ${name} for url ${url}`);
+    return await browser.cookies.set({
+        url: extractHostname(url),
+        name: name,
+        value: "1",
+        path: "/",
+        expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
+    });
+}
+async function cookieDelete(url, name) {
+    console.log(`xdebug: remove cookie ${name} for url ${url}`);
+    return await browser.cookies.remove({ url: url, name: name });
+}
 function setIconAsWorking() {
     browser.browserAction.setIcon({ path: "../icons/working.svg" }).catch(setError);
 }
@@ -129,20 +152,6 @@ function updateStateWithTab(tab) {
         else {
             setIconAsIdle();
         }
-    }, error => {
-        setError(error, name);
-        setIconAsIdle();
-    }).catch(error => {
-        setError(error, name);
-        setIconAsIdle();
-    });
-}
-function updateState(tabId) {
-    browser.tabs.get(tabId).then(tab => {
-        updateStateWithTab(tab);
-    }, error => {
-        setError(error, name);
-        setIconAsIdle();
     }).catch(error => {
         setError(error, name);
         setIconAsIdle();
@@ -158,11 +167,59 @@ function updateState(tabId) {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api__ = __webpack_require__(0);
 
+let currentTab;
 function onActivatedTab(activeInfo) {
-    Object(__WEBPACK_IMPORTED_MODULE_0__api__["h" /* updateState */])(activeInfo.tabId);
+    browser.tabs.get(activeInfo.tabId).then(tab => {
+        if (tab.url) {
+            currentTab = tab;
+            __WEBPACK_IMPORTED_MODULE_0__api__["j" /* updateStateWithTab */](tab);
+        }
+        else {
+            __WEBPACK_IMPORTED_MODULE_0__api__["h" /* setIconAsIdle */]();
+        }
+    }).catch(error => {
+        __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error);
+        __WEBPACK_IMPORTED_MODULE_0__api__["h" /* setIconAsIdle */]();
+    });
+}
+function onCommand(command) {
+    if (currentTab) {
+        const url = currentTab.url;
+        switch (command) {
+            case "toggle_debug_session":
+                const name = __WEBPACK_IMPORTED_MODULE_0__api__["b" /* XDEBUG_COOKIE_SESSION */];
+                __WEBPACK_IMPORTED_MODULE_0__api__["f" /* isCookieEnabled */](url, name).then(enabled => {
+                    if (enabled) {
+                        __WEBPACK_IMPORTED_MODULE_0__api__["d" /* cookieDelete */](url, name).then(_ => {
+                            __WEBPACK_IMPORTED_MODULE_0__api__["j" /* updateStateWithTab */](currentTab);
+                        }).catch(error => {
+                            __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error, name);
+                        });
+                        ;
+                    }
+                    else {
+                        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* cookieSet */](url, name).then(_ => {
+                            __WEBPACK_IMPORTED_MODULE_0__api__["i" /* setIconAsWorking */]();
+                        }).catch(error => {
+                            __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error, name);
+                        });
+                    }
+                });
+                break;
+            default:
+                console.log(`xdebug: unhandled command: ${command}`);
+                break;
+        }
+    }
+    else {
+        console.log(`xdebug: cannot run: ${command} without an active tab`);
+    }
 }
 if (!browser.tabs.onActivated.hasListener(onActivatedTab)) {
     browser.tabs.onActivated.addListener(onActivatedTab);
+}
+if (!browser.commands.onCommand.hasListener(onCommand)) {
+    browser.commands.onCommand.addListener(onCommand);
 }
 
 

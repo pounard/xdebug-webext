@@ -83,9 +83,6 @@ function saveOptions(event) {
 function restoreOptions() {
     browser.storage.sync.get('colour').then(result => {
         keyInput.value = result.value || PREF_IDEKEY_DEFAULT;
-    }, error => {
-        console.log(`error while setting `);
-        keyInput.value = PREF_IDEKEY_DEFAULT;
     }).catch(error => {
         console.log(`error while setting `);
         keyInput.value = PREF_IDEKEY_DEFAULT;

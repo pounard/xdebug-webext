@@ -27,6 +27,34 @@ export async function isCookieEnabled(url: string, name: string): Promise<boolea
     });
 }
 
+const DEFAULT_COOKIE_EXPIRY = 3600;
+
+function extractHostname(url: string): string {
+    const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
+    if (matches && matches.length) {
+        return matches[0];
+    }
+    return url;
+}
+
+export async function cookieSet(url: string, name: string) {
+    console.log(`xdebug: set cookie ${name} for url ${url}`);
+    return await browser.cookies.set(<any>{
+        url: extractHostname(url),
+        name: name,
+        value: "1",
+        path: "/",
+        // Without expire, expiry will set to the session, but in container
+        // tabs Firefox will not send the cookie (ouate de phoque).
+        expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
+    });
+}
+
+export async function cookieDelete(url: string, name: string) {
+    console.log(`xdebug: remove cookie ${name} for url ${url}`);
+    return await browser.cookies.remove(<any>{url: url, name: name});
+}
+
 export function setIconAsWorking(): void {
     browser.browserAction.setIcon({path: "../icons/working.svg"}).catch(setError);
 }
@@ -49,21 +77,6 @@ export function updateStateWithTab(tab: browser.tabs.Tab) {
         } else {
             setIconAsIdle();
         }
-    }, error => {
-        setError(error, name);
-        setIconAsIdle();
-    }).catch(error => {
-        setError(error, name);
-        setIconAsIdle();
-    });
-}
-
-export function updateState(tabId: number): void {
-    browser.tabs.get(tabId).then(tab => {
-        updateStateWithTab(tab);
-    }, error => {
-        setError(error, name);
-        setIconAsIdle();
     }).catch(error => {
         setError(error, name);
         setIconAsIdle();

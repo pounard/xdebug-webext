@@ -68,12 +68,13 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["e"] = setError;
-/* harmony export (immutable) */ __webpack_exports__["d"] = isCookieEnabled;
-/* harmony export (immutable) */ __webpack_exports__["g"] = setIconAsWorking;
-/* harmony export (immutable) */ __webpack_exports__["f"] = setIconAsIdle;
-/* harmony export (immutable) */ __webpack_exports__["i"] = updateStateWithTab;
-/* harmony export (immutable) */ __webpack_exports__["h"] = updateState;
+/* harmony export (immutable) */ __webpack_exports__["g"] = setError;
+/* harmony export (immutable) */ __webpack_exports__["f"] = isCookieEnabled;
+/* harmony export (immutable) */ __webpack_exports__["e"] = cookieSet;
+/* harmony export (immutable) */ __webpack_exports__["d"] = cookieDelete;
+/* harmony export (immutable) */ __webpack_exports__["i"] = setIconAsWorking;
+/* harmony export (immutable) */ __webpack_exports__["h"] = setIconAsIdle;
+/* harmony export (immutable) */ __webpack_exports__["j"] = updateStateWithTab;
 const XDEBUG_COOKIE_SESSION = "XDEBUG_SESSION";
 /* harmony export (immutable) */ __webpack_exports__["b"] = XDEBUG_COOKIE_SESSION;
 
@@ -110,61 +111,6 @@ async function isCookieEnabled(url, name) {
         });
     });
 }
-function setIconAsWorking() {
-    browser.browserAction.setIcon({ path: "../icons/working.svg" }).catch(setError);
-}
-function setIconAsIdle() {
-    browser.browserAction.setIcon({ path: "../icons/icon.svg" }).catch(setError);
-}
-function updateStateWithTab(tab) {
-    const promises = [];
-    for (let name of XDEBUG_COOKIE_ALL) {
-        promises.push(isCookieEnabled(tab.url, name));
-    }
-    Promise.all(promises).then((enabled) => {
-        console.log(enabled);
-        if (enabled.some(value => value)) {
-            setIconAsWorking();
-        }
-        else {
-            setIconAsIdle();
-        }
-    }, error => {
-        setError(error, name);
-        setIconAsIdle();
-    }).catch(error => {
-        setError(error, name);
-        setIconAsIdle();
-    });
-}
-function updateState(tabId) {
-    browser.tabs.get(tabId).then(tab => {
-        updateStateWithTab(tab);
-    }, error => {
-        setError(error, name);
-        setIconAsIdle();
-    }).catch(error => {
-        setError(error, name);
-        setIconAsIdle();
-    });
-}
-
-
-/***/ }),
-/* 1 */,
-/* 2 */,
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api__ = __webpack_require__(0);
-
-const buttons = {
-    "debug": __WEBPACK_IMPORTED_MODULE_0__api__["b" /* XDEBUG_COOKIE_SESSION */],
-    "profile": __WEBPACK_IMPORTED_MODULE_0__api__["a" /* XDEBUG_COOKIE_PROFILE */],
-    "trace": __WEBPACK_IMPORTED_MODULE_0__api__["c" /* XDEBUG_COOKIE_TRACE */]
-};
 const DEFAULT_COOKIE_EXPIRY = 3600;
 function extractHostname(url) {
     const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
@@ -187,49 +133,84 @@ async function cookieDelete(url, name) {
     console.log(`xdebug: remove cookie ${name} for url ${url}`);
     return await browser.cookies.remove({ url: url, name: name });
 }
+function setIconAsWorking() {
+    browser.browserAction.setIcon({ path: "../icons/working.svg" }).catch(setError);
+}
+function setIconAsIdle() {
+    browser.browserAction.setIcon({ path: "../icons/icon.svg" }).catch(setError);
+}
+function updateStateWithTab(tab) {
+    const promises = [];
+    for (let name of XDEBUG_COOKIE_ALL) {
+        promises.push(isCookieEnabled(tab.url, name));
+    }
+    Promise.all(promises).then((enabled) => {
+        console.log(enabled);
+        if (enabled.some(value => value)) {
+            setIconAsWorking();
+        }
+        else {
+            setIconAsIdle();
+        }
+    }).catch(error => {
+        setError(error, name);
+        setIconAsIdle();
+    });
+}
+
+
+/***/ }),
+/* 1 */,
+/* 2 */,
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api__ = __webpack_require__(0);
+
+const buttons = {
+    "debug": __WEBPACK_IMPORTED_MODULE_0__api__["b" /* XDEBUG_COOKIE_SESSION */],
+    "profile": __WEBPACK_IMPORTED_MODULE_0__api__["a" /* XDEBUG_COOKIE_PROFILE */],
+    "trace": __WEBPACK_IMPORTED_MODULE_0__api__["c" /* XDEBUG_COOKIE_TRACE */]
+};
 function toggleCheckboxState(tab, name, button) {
     let promise;
     if (button.checked) {
-        promise = cookieSet(tab.url, name);
+        promise = __WEBPACK_IMPORTED_MODULE_0__api__["e" /* cookieSet */](tab.url, name);
     }
     else {
-        promise = cookieDelete(tab.url, name);
+        promise = __WEBPACK_IMPORTED_MODULE_0__api__["d" /* cookieDelete */](tab.url, name);
     }
     promise.then(_ => {
         if (button.checked) {
-            __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setIconAsWorking */]();
+            __WEBPACK_IMPORTED_MODULE_0__api__["i" /* setIconAsWorking */]();
         }
         else {
-            __WEBPACK_IMPORTED_MODULE_0__api__["i" /* updateStateWithTab */](tab);
+            __WEBPACK_IMPORTED_MODULE_0__api__["j" /* updateStateWithTab */](tab);
         }
-    }, error => {
-        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
-        button.checked = false;
     }).catch(error => {
-        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
+        __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error, name);
         button.checked = false;
     });
 }
 function initializeButton(tab, id, name) {
     let button = document.querySelector("#" + id);
     if (!button) {
-        return __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](`could not find button ${id}`);
+        return __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](`could not find button ${id}`);
     }
     button.addEventListener("change", () => toggleCheckboxState(tab, name, button));
-    __WEBPACK_IMPORTED_MODULE_0__api__["d" /* isCookieEnabled */](tab.url, name).then(enabled => {
+    __WEBPACK_IMPORTED_MODULE_0__api__["f" /* isCookieEnabled */](tab.url, name).then(enabled => {
         button.checked = enabled;
         if (enabled) {
-            __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setIconAsWorking */]();
+            __WEBPACK_IMPORTED_MODULE_0__api__["i" /* setIconAsWorking */]();
         }
-    }, error => {
-        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
-        button.checked = false;
     }).catch(error => {
-        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* setError */](error, name);
+        __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error, name);
         button.checked = false;
     });
 }
-__WEBPACK_IMPORTED_MODULE_0__api__["f" /* setIconAsIdle */]();
+__WEBPACK_IMPORTED_MODULE_0__api__["h" /* setIconAsIdle */]();
 browser.tabs.query({ active: true }).then(tabs => {
     for (let tab of tabs) {
         if (tab.url) {
