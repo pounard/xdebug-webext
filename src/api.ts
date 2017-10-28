@@ -1,3 +1,4 @@
+declare type Tab = browser.tabs.Tab;
 
 export const XDEBUG_COOKIE_SESSION = "XDEBUG_SESSION";
 export const XDEBUG_COOKIE_PROFILE = "XDEBUG_PROFILE";
@@ -14,11 +15,15 @@ export function setError(error?: any, name?: string): void {
     }
 }
 
-export async function isCookieEnabled(url: string, name: string): Promise<boolean> {
-    return await browser.cookies.get({url: url, name: name}).then((cookie: browser.cookies.Cookie | null) => {
+export async function isCookieEnabled(tab: Tab, name: string): Promise<boolean> {
+    return await browser.cookies.get({
+        url: <string>tab.url,
+        name: name,
+        storeId: tab.cookieStoreId,
+    }).then((cookie: browser.cookies.Cookie | null) => {
         return new Promise<boolean>((resolve, reject) => {
-            console.log(`${name} is ${cookie}`);
-            if (cookie && cookie.value == "1") {
+            console.log(`${name} for ${tab.url} is ${cookie}`);
+            if (cookie && cookie.value !== "0") {
                 resolve(true);
             } else {
                 resolve(false);
@@ -26,8 +31,6 @@ export async function isCookieEnabled(url: string, name: string): Promise<boolea
         });
     });
 }
-
-const DEFAULT_COOKIE_EXPIRY = 3600;
 
 function extractHostname(url: string): string {
     const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
@@ -37,22 +40,27 @@ function extractHostname(url: string): string {
     return url;
 }
 
-export async function cookieSet(url: string, name: string) {
-    console.log(`xdebug: set cookie ${name} for url ${url}`);
+export async function cookieSet(tab: Tab, name: string) {
+    console.log(`xdebug: set cookie ${name} for url ${tab.url} in store ${tab.cookieStoreId}`);
     return await browser.cookies.set(<any>{
-        url: extractHostname(url),
+        url: extractHostname(<string>tab.url),
         name: name,
         value: "1",
         path: "/",
+        storeId: tab.cookieStoreId,
         // Without expire, expiry will set to the session, but in container
         // tabs Firefox will not send the cookie (ouate de phoque).
-        expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
+        // expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
     });
 }
 
-export async function cookieDelete(url: string, name: string) {
-    console.log(`xdebug: remove cookie ${name} for url ${url}`);
-    return await browser.cookies.remove(<any>{url: url, name: name});
+export async function cookieDelete(tab: Tab, name: string) {
+    console.log(`xdebug: remove cookie ${name} for url ${tab.url} in store ${tab.cookieStoreId}`);
+    return await browser.cookies.remove(<any>{
+        url: extractHostname(<string>tab.url),
+        name: name,
+        storeId: tab.cookieStoreId,
+    });
 }
 
 export function setIconAsWorking(): void {
@@ -63,11 +71,11 @@ export function setIconAsIdle(): void {
     browser.browserAction.setIcon({path: "../icons/icon.svg"}).catch(setError);
 }
 
-export function updateStateWithTab(tab: browser.tabs.Tab) {
+export function updateStateWithTab(tab: Tab) {
     const promises: Promise<boolean>[] = [];
 
     for (let name of XDEBUG_COOKIE_ALL) {
-        promises.push(isCookieEnabled(<string>tab.url, name));
+        promises.push(isCookieEnabled(tab, name));
     }
 
     Promise.all(promises).then((enabled: boolean[]) => {

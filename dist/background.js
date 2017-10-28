@@ -98,11 +98,15 @@ function setError(error, name) {
         console.log(`xdebug: error: ${error}`);
     }
 }
-async function isCookieEnabled(url, name) {
-    return await browser.cookies.get({ url: url, name: name }).then((cookie) => {
+async function isCookieEnabled(tab, name) {
+    return await browser.cookies.get({
+        url: tab.url,
+        name: name,
+        storeId: tab.cookieStoreId,
+    }).then((cookie) => {
         return new Promise((resolve, reject) => {
-            console.log(`${name} is ${cookie}`);
-            if (cookie && cookie.value == "1") {
+            console.log(`${name} for ${tab.url} is ${cookie}`);
+            if (cookie && cookie.value !== "0") {
                 resolve(true);
             }
             else {
@@ -111,7 +115,6 @@ async function isCookieEnabled(url, name) {
         });
     });
 }
-const DEFAULT_COOKIE_EXPIRY = 3600;
 function extractHostname(url) {
     const matches = url.match(/^([^:]+:\/\/[^/]+)/gm);
     if (matches && matches.length) {
@@ -119,19 +122,23 @@ function extractHostname(url) {
     }
     return url;
 }
-async function cookieSet(url, name) {
-    console.log(`xdebug: set cookie ${name} for url ${url}`);
+async function cookieSet(tab, name) {
+    console.log(`xdebug: set cookie ${name} for url ${tab.url} in store ${tab.cookieStoreId}`);
     return await browser.cookies.set({
-        url: extractHostname(url),
+        url: extractHostname(tab.url),
         name: name,
         value: "1",
         path: "/",
-        expirationDate: Date.now() + DEFAULT_COOKIE_EXPIRY
+        storeId: tab.cookieStoreId,
     });
 }
-async function cookieDelete(url, name) {
-    console.log(`xdebug: remove cookie ${name} for url ${url}`);
-    return await browser.cookies.remove({ url: url, name: name });
+async function cookieDelete(tab, name) {
+    console.log(`xdebug: remove cookie ${name} for url ${tab.url} in store ${tab.cookieStoreId}`);
+    return await browser.cookies.remove({
+        url: extractHostname(tab.url),
+        name: name,
+        storeId: tab.cookieStoreId,
+    });
 }
 function setIconAsWorking() {
     browser.browserAction.setIcon({ path: "../icons/working.svg" }).catch(setError);
@@ -142,7 +149,7 @@ function setIconAsIdle() {
 function updateStateWithTab(tab) {
     const promises = [];
     for (let name of XDEBUG_COOKIE_ALL) {
-        promises.push(isCookieEnabled(tab.url, name));
+        promises.push(isCookieEnabled(tab, name));
     }
     Promise.all(promises).then((enabled) => {
         console.log(enabled);
@@ -184,13 +191,12 @@ function onActivatedTab(activeInfo) {
 }
 function onCommand(command) {
     if (currentTab) {
-        const url = currentTab.url;
         switch (command) {
             case "toggle_debug_session":
                 const name = __WEBPACK_IMPORTED_MODULE_0__api__["b" /* XDEBUG_COOKIE_SESSION */];
-                __WEBPACK_IMPORTED_MODULE_0__api__["f" /* isCookieEnabled */](url, name).then(enabled => {
+                __WEBPACK_IMPORTED_MODULE_0__api__["f" /* isCookieEnabled */](currentTab, name).then(enabled => {
                     if (enabled) {
-                        __WEBPACK_IMPORTED_MODULE_0__api__["d" /* cookieDelete */](url, name).then(_ => {
+                        __WEBPACK_IMPORTED_MODULE_0__api__["d" /* cookieDelete */](currentTab, name).then(_ => {
                             __WEBPACK_IMPORTED_MODULE_0__api__["j" /* updateStateWithTab */](currentTab);
                         }).catch(error => {
                             __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error, name);
@@ -198,7 +204,7 @@ function onCommand(command) {
                         ;
                     }
                     else {
-                        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* cookieSet */](url, name).then(_ => {
+                        __WEBPACK_IMPORTED_MODULE_0__api__["e" /* cookieSet */](currentTab, name).then(_ => {
                             __WEBPACK_IMPORTED_MODULE_0__api__["i" /* setIconAsWorking */]();
                         }).catch(error => {
                             __WEBPACK_IMPORTED_MODULE_0__api__["g" /* setError */](error, name);

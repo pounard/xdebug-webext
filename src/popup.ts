@@ -1,3 +1,4 @@
+declare type Tab = browser.tabs.Tab;
 
 import * as Api from "./api";
 
@@ -7,13 +8,13 @@ const buttons: any = {
     "trace": Api.XDEBUG_COOKIE_TRACE
 };
 
-function toggleCheckboxState(tab: browser.tabs.Tab, name: string, button: HTMLInputElement): void {
+function toggleCheckboxState(tab: Tab, name: string, button: HTMLInputElement): void {
     let promise: Promise<any>;
 
     if (button.checked) {
-        promise = Api.cookieSet(<string>tab.url, name);
+        promise = Api.cookieSet(tab, name);
     } else {
-        promise = Api.cookieDelete(<string>tab.url, name);
+        promise = Api.cookieDelete(tab, name);
     }
 
     promise.then(_ => {
@@ -29,7 +30,7 @@ function toggleCheckboxState(tab: browser.tabs.Tab, name: string, button: HTMLIn
     });
 }
 
-function initializeButton(tab: browser.tabs.Tab, id: string, name: string) {
+function initializeButton(tab: Tab, id: string, name: string) {
     let button = <HTMLInputElement>document.querySelector("#" + id);
 
     if (!button) {
@@ -38,7 +39,7 @@ function initializeButton(tab: browser.tabs.Tab, id: string, name: string) {
 
     button.addEventListener("change", () => toggleCheckboxState(tab, name, button));
 
-    Api.isCookieEnabled(<string>tab.url, name).then(enabled => {
+    Api.isCookieEnabled(tab, name).then(enabled => {
         button.checked = enabled;
         if (enabled) {
             Api.setIconAsWorking();

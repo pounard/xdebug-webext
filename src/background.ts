@@ -1,7 +1,8 @@
+declare type Tab = browser.tabs.Tab;
 
 import * as Api from "./api";
 
-let currentTab: browser.tabs.Tab | null;
+let currentTab: Tab | null;
 
 function onActivatedTab(activeInfo: any) {
     browser.tabs.get(activeInfo.tabId).then(tab => {
@@ -19,22 +20,19 @@ function onActivatedTab(activeInfo: any) {
 
 function onCommand(command: string): void {
     if (currentTab) {
-
-        const url = <string>currentTab.url;
-
         switch (command) {
 
             case "toggle_debug_session":
                 const name = Api.XDEBUG_COOKIE_SESSION;
-                Api.isCookieEnabled(url, name).then(enabled => {
+                Api.isCookieEnabled(currentTab, name).then(enabled => {
                     if (enabled) {
-                        Api.cookieDelete(url, name).then(_ => {
-                            Api.updateStateWithTab(<browser.tabs.Tab>currentTab);
+                        Api.cookieDelete(<Tab>currentTab, name).then(_ => {
+                            Api.updateStateWithTab(<Tab>currentTab);
                         }).catch(error => {
                             Api.setError(error, name)
                         });;
                     } else {
-                        Api.cookieSet(url, name).then(_ => {
+                        Api.cookieSet(<Tab>currentTab, name).then(_ => {
                             Api.setIconAsWorking();
                         }).catch(error => {
                             Api.setError(error, name)
